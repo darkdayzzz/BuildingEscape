@@ -10,3 +10,6 @@
 
 /BuildingEscape/*.VC.opendb
 
+/BuildingEscape/BuildingEscape.sln
+/BuildingEscape/BuildingEscape.sdf
+/BuildingEscape/.vs/BuildingEscape/v14/.suo
