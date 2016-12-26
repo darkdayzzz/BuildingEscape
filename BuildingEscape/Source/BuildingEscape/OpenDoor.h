@@ -18,12 +18,17 @@ public:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	void OpenDoor(bool bOpen);
+	void OpenDoor();
+	void CloseDoor();
 	
 	// Called every frame
 	virtual void TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction ) override;
 
 private:
+	AActor* Owner;
+	float TimeTilDoorCloseTriggered = 1.0f;
+	bool DoorOpened = false;
+
 	UPROPERTY(EditAnywhere)
 		int32 CloseAngle = 0; // angle of closed door
 
@@ -31,8 +36,11 @@ private:
 		int32 OpenAngleOffset = 90; // degrees to open door to from Closed door angle. ie. 90, -90, 45, -45, etc
 
 	UPROPERTY(EditAnywhere)
-	ATriggerVolume* PressurePlate;
+		int32 TimeTilDoorClosed = 1.0f; // seconds until door closes
 
 	UPROPERTY(EditAnywhere)
-	AActor* ActorThatOpens;	
+		ATriggerVolume* PressurePlate; // trigger volume to open door
+
+	UPROPERTY(EditAnywhere)
+		AActor* ActorThatOpens;	// actor that triggers
 };
