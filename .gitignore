@@ -9,6 +9,7 @@
 /BuildingEscape/Content/StarterContent
 
 /BuildingEscape/*.VC.opendb
+/BuildingEscape/*.VC.db
 
 /BuildingEscape/BuildingEscape.sln
 /BuildingEscape/BuildingEscape.sdf
