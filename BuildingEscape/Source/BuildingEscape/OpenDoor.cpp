@@ -11,7 +11,6 @@ UOpenDoor::UOpenDoor()
 	// off to improve performance if you don't need them.
 	bWantsBeginPlay = true;
 	PrimaryComponentTick.bCanEverTick = true;
-
 	// ...
 }
 
@@ -20,15 +19,28 @@ UOpenDoor::UOpenDoor()
 void UOpenDoor::BeginPlay()
 {
 	Super::BeginPlay();
+	if (ActorThatOpens == nullptr) {
+		ActorThatOpens = GetWorld()->GetFirstPlayerController()->GetPawn();
+	}
+	AActor* Owner = GetOwner();
+	FRotator StartRotation = FRotator(0.0f, CloseAngle, 0.0f);
+	CloseAngle = Owner->GetTransform().GetRotation().Euler().Z;
+}
 
+
+void UOpenDoor::OpenDoor(bool bOpen)
+{
 	// find the owning actor
 	AActor* Owner = GetOwner();
 	int32 OldRotationDeg = Owner->GetTransform().GetRotation().Euler().Z;
-	// set the door rotation
-	FRotator NewRotation = FRotator(0.0f, 180.0f, 0.0f);
-	Owner->SetActorRotation(NewRotation);
-	int32 NewRotationDeg = Owner->GetTransform().GetRotation().Euler().Z;
-	UE_LOG(LogTemp, Warning, TEXT("Door was at %i degrees and now at %i degrees"), OldRotationDeg, NewRotationDeg);
+	if (((OldRotationDeg == CloseAngle) && bOpen) || ((OldRotationDeg != CloseAngle) && !bOpen)) {
+		// change the door rotation
+		FString ObjectName = GetOwner()->GetName();
+		FRotator NewRotation = FRotator(0.0f, bOpen ? CloseAngle + OpenAngleOffset : CloseAngle, 0.0f);
+		Owner->SetActorRotation(NewRotation);
+		int32 NewRotationDeg = Owner->GetTransform().GetRotation().Euler().Z;
+		UE_LOG(LogTemp, Warning, TEXT("Door was at %i degrees and now at %i degrees"), OldRotationDeg, NewRotationDeg);
+	}
 }
 
 
@@ -37,6 +49,18 @@ void UOpenDoor::TickComponent( float DeltaTime, ELevelTick TickType, FActorCompo
 {
 	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
 
-	// ...
+	// If ActorThatOpens is in the volume of PressurePlate then OpenDoor()
+	if (PressurePlate != nullptr)
+	{
+		if (PressurePlate->IsOverlappingActor(ActorThatOpens))
+		{
+			OpenDoor(true);
+		}
+		else
+		{
+			OpenDoor(false);
+		}
+	}
+
 }
 
