@@ -58,15 +58,26 @@ void UGrabber::Grab()
 	UE_LOG(LogTemp, Warning, TEXT("Grabbing..."));
 	/// try and reach any actors with physics body collision channel set
 
+	auto HitResult = GetFirstBody();
+	auto ComponentToGrab = HitResult.GetComponent();
+	auto ActorHit = HitResult.GetActor();
+
 	/// if we hit something then attach a physics handle
-	// TODO attach physics handle
+	if (ActorHit) {
+		PhysicsHandle->GrabComponent(
+			ComponentToGrab,
+			NAME_None,
+			ComponentToGrab->GetOwner()->GetActorLocation(),
+			true
+		);
+	}
 
 };
 
 void UGrabber::Release()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Releasing..."));
-	/// TODO Release physics handle
+	PhysicsHandle->ReleaseComponent();
 };
 
 // Called every frame
@@ -76,7 +87,16 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 
 	// if the physics handle is attached
 		// move the object that we're holding
+	if (PhysicsHandle->GrabbedComponent)
+	{
+		Owner->GetPlayerViewPoint(
+			OUT PlayerViewPointLocation,
+			OUT PlayerViewPointRotation
+		);
+		FVector LineTraceEnd = PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach;
 
+		PhysicsHandle->SetTargetLocation(LineTraceEnd);
+	}
 }
 
 // Draw a debug line in bright red, 10cms thick
@@ -120,4 +140,6 @@ const FHitResult UGrabber::GetFirstBody()
 		AActor* ObjectHit = LineTraceHit.GetActor();
 		UE_LOG(LogTemp, Warning, TEXT("Raytrace hit: %s"), *(ObjectHit->GetName()));
 	}
+
+	return LineTraceHit;
 }
