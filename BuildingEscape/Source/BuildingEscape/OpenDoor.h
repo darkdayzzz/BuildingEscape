@@ -38,7 +38,7 @@ private:
 		int32 TimeTilDoorClosed = 1.0f; // seconds until door closes
 
 	UPROPERTY(EditAnywhere)
-		ATriggerVolume* PressurePlate = nullptr; // trigger volume to open door
+		ATriggerVolume* PressurePlate; // trigger volume to open door
 
 	float UOpenDoor::GetMassOfActors();
 };
