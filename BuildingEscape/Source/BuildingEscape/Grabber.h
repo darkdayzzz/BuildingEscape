@@ -17,7 +17,7 @@ public:
 
 	// Called when the game starts
 	virtual void BeginPlay() override;
-	
+
 	// Called every frame
 	virtual void TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction ) override;
 
@@ -28,9 +28,15 @@ private:
 	APlayerController* Owner;
 	
 	UPhysicsHandleComponent* PhysicsHandle = nullptr;
-	UInputComponent* InputHandle = nullptr;
+	UInputComponent* InputComponent = nullptr;
 
 	// ray-cast and grab what is in reach
 	void Grab();
 	void Release();
+
+	void UGrabber::FindPhysicsHandleComponent();
+	void UGrabber::SetupInputComponent();
+	const FHitResult UGrabber::GetFirstBody();
+
+	void Debug_DrawDebugLine(FVector &LineTraceEnd);
 };

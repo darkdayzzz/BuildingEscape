@@ -12,10 +12,7 @@ UGrabber::UGrabber()
 	// off to improve performance if you don't need them.
 	bWantsBeginPlay = true;
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
 }
-
 
 // Called when the game starts
 void UGrabber::BeginPlay()
@@ -24,56 +21,93 @@ void UGrabber::BeginPlay()
 
 	Owner = GetWorld()->GetFirstPlayerController();
 	
-	/// look for attached physics handle
-	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
-	if (PhysicsHandle)
-	{
+	FindPhysicsHandleComponent();
+	SetupInputComponent();
+}
 
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("No physics handle found. Check object %s has physics handle component."), *(GetOwner()->GetName()));
-	}
-
+void UGrabber::SetupInputComponent()
+{
 	/// look for attached input component
-	InputHandle = GetOwner()->FindComponentByClass<UInputComponent>();
-	if (InputHandle) {
+	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
+	if (InputComponent) {
 		/// bind input action
-		InputHandle->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
-		InputHandle->BindAction("Grab", IE_Released, this, &UGrabber::Release);
+		InputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
+		InputComponent->BindAction("Grab", IE_Released, this, &UGrabber::Release);
 	}
 	else {
 		UE_LOG(LogTemp, Error, TEXT("No input component found. Check object %s has input component."), *(GetOwner()->GetName()));
 	}
 }
 
+void UGrabber::FindPhysicsHandleComponent()
+{
+	/// look for attached physics handle
+	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
+	if (PhysicsHandle)
+	{
+		// found physics handle - don't do anything with it for now...
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("No physics handle found. Check object %s has physics handle component."), *(GetOwner()->GetName()));
+	}
+}
+
+void UGrabber::Grab()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Grabbing..."));
+	/// try and reach any actors with physics body collision channel set
+
+	/// if we hit something then attach a physics handle
+	// TODO attach physics handle
+
+};
+
+void UGrabber::Release()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Releasing..."));
+	/// TODO Release physics handle
+};
 
 // Called every frame
-void UGrabber::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
+void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
-	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
-	Owner->GetPlayerViewPoint(
-		OUT PlayerViewPointLocation,
-		OUT PlayerViewPointRotation
-	);
-	///UE_LOG(LogTemp, Warning, TEXT("Grabber is at Location: %s and Rotation: %s"), *PlayerViewPointLocation.ToString(), *PlayerViewPointRotation.ToString());
-	FVector LineTraceEnd = PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach;
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	/// Draw a debug line in bright red, 10cms thick
+	// if the physics handle is attached
+		// move the object that we're holding
+
+}
+
+// Draw a debug line in bright red, 10cms thick
+void UGrabber::Debug_DrawDebugLine(FVector &LineTraceEnd)
+{
 	DrawDebugLine(
 		GetWorld(),
 		PlayerViewPointLocation,
 		LineTraceEnd,
-		FColor(255,0,0),
+		FColor(255, 0, 0),
 		false,
 		0.f,
 		0,
 		10.f
 	);
+}
+
+// get first physics body within reach
+const FHitResult UGrabber::GetFirstBody()
+{
+	Owner->GetPlayerViewPoint(
+		OUT PlayerViewPointLocation,
+		OUT PlayerViewPointRotation
+	);
+	FVector LineTraceEnd = PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach;
+
+	//Debug_DrawDebugLine(LineTraceEnd);
 
 	/// Setup query parameters
 	FCollisionQueryParams TraceParameters(FName(TEXT("")), false, GetOwner());
-	FHitResult LineTraceHit;	
+	FHitResult LineTraceHit;
 
 	/// Check trace for hit results
 	if (GetWorld()->LineTraceSingleByObjectType(
@@ -86,17 +120,4 @@ void UGrabber::TickComponent( float DeltaTime, ELevelTick TickType, FActorCompon
 		AActor* ObjectHit = LineTraceHit.GetActor();
 		UE_LOG(LogTemp, Warning, TEXT("Raytrace hit: %s"), *(ObjectHit->GetName()));
 	}
-
 }
-
-
-void UGrabber::Grab()
-{
-	UE_LOG(LogTemp, Warning, TEXT("Grabbing..."));
-};
-
-
-void UGrabber::Release()
-{
-	UE_LOG(LogTemp, Warning, TEXT("Releasing..."));
-};
