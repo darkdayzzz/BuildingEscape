@@ -27,4 +27,10 @@ private:
 	FRotator PlayerViewPointRotation;
 	APlayerController* Owner;
 	
+	UPhysicsHandleComponent* PhysicsHandle = nullptr;
+	UInputComponent* InputHandle = nullptr;
+
+	// ray-cast and grab what is in reach
+	void Grab();
+	void Release();
 };

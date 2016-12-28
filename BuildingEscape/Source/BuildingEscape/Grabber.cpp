@@ -24,6 +24,27 @@ void UGrabber::BeginPlay()
 
 	Owner = GetWorld()->GetFirstPlayerController();
 	
+	/// look for attached physics handle
+	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
+	if (PhysicsHandle)
+	{
+
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("No physics handle found. Check object %s has physics handle component."), *(GetOwner()->GetName()));
+	}
+
+	/// look for attached input component
+	InputHandle = GetOwner()->FindComponentByClass<UInputComponent>();
+	if (InputHandle) {
+		/// bind input action
+		InputHandle->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
+		InputHandle->BindAction("Grab", IE_Released, this, &UGrabber::Release);
+	}
+	else {
+		UE_LOG(LogTemp, Error, TEXT("No input component found. Check object %s has input component."), *(GetOwner()->GetName()));
+	}
 }
 
 
@@ -38,6 +59,7 @@ void UGrabber::TickComponent( float DeltaTime, ELevelTick TickType, FActorCompon
 	///UE_LOG(LogTemp, Warning, TEXT("Grabber is at Location: %s and Rotation: %s"), *PlayerViewPointLocation.ToString(), *PlayerViewPointRotation.ToString());
 	FVector LineTraceEnd = PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach;
 
+	/// Draw a debug line in bright red, 10cms thick
 	DrawDebugLine(
 		GetWorld(),
 		PlayerViewPointLocation,
@@ -67,3 +89,14 @@ void UGrabber::TickComponent( float DeltaTime, ELevelTick TickType, FActorCompon
 
 }
 
+
+void UGrabber::Grab()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Grabbing..."));
+};
+
+
+void UGrabber::Release()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Releasing..."));
+};
