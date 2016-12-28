@@ -25,7 +25,6 @@ public:
 	virtual void TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction ) override;
 
 private:
-	AActor* Owner;
 	float TimeTilDoorCloseTriggered = 1.0f;
 	bool DoorOpened = false;
 
@@ -41,6 +40,5 @@ private:
 	UPROPERTY(EditAnywhere)
 		ATriggerVolume* PressurePlate; // trigger volume to open door
 
-	UPROPERTY(EditAnywhere)
-		AActor* ActorThatOpens;	// actor that triggers
+	float UOpenDoor::GetMassOfActors();
 };
