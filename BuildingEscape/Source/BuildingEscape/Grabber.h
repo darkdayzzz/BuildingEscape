@@ -20,7 +20,7 @@ public:
 
 	// Called every frame
 	virtual void TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction ) override;
-
+	
 private:
 	float Reach = 100.0f;
 	FVector PlayerViewPointLocation;
@@ -37,6 +37,9 @@ private:
 	void UGrabber::FindPhysicsHandleComponent();
 	void UGrabber::SetupInputComponent();
 	const FHitResult UGrabber::GetFirstBody();
+	void UGrabber::MoveGrabbedObjectWithPlayer();
+	FVector UGrabber::GetReachLineStart();
+	FVector UGrabber::GetReachLineEnd();
 
-	void Debug_DrawDebugLine(FVector &LineTraceEnd);
+	void Debug_DrawDebugLine();
 };
