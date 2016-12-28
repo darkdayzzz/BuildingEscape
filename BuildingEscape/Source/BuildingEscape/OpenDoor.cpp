@@ -21,6 +21,9 @@ void UOpenDoor::BeginPlay()
 {
 	Super::BeginPlay();
 	CloseAngle = GetOwner()->GetTransform().GetRotation().Euler().Z;
+	if (!PressurePlate) {
+		UE_LOG(LogTemp, Warning, TEXT("No Pressure Plate value found. Check object %s has Pressure Plate set."), *(GetOwner()->GetName()));
+	};
 }
 
 
@@ -42,32 +45,29 @@ void UOpenDoor::TickComponent( float DeltaTime, ELevelTick TickType, FActorCompo
 	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
 
 	// If total mass of actors on trigger is over x kg then OpenDoor()
-	if (PressurePlate != nullptr)
+	if (!PressurePlate) { return; }
+	if (GetMassOfActors()>50.0f)
 	{
-		if (GetMassOfActors()>50.0f)
-		{
-			OpenDoor();
-		}
-		else
-		{
-			if (DoorOpened) {
-				TimeTilDoorCloseTriggered = GetWorld()->GetTimeSeconds();
-				DoorOpened = false;
-			};
-			if (GetWorld()->GetTimeSeconds() - TimeTilDoorCloseTriggered > TimeTilDoorClosed) {
-				CloseDoor();
-			};
-		};
+		OpenDoor();
 	}
-
+	else
+	{
+		if (DoorOpened) {
+			TimeTilDoorCloseTriggered = GetWorld()->GetTimeSeconds();
+			DoorOpened = false;
+		};
+		if (GetWorld()->GetTimeSeconds() - TimeTilDoorCloseTriggered > TimeTilDoorClosed) {
+			CloseDoor();
+		};
+	};
 }
 
 float UOpenDoor::GetMassOfActors()
 {
+	if (!PressurePlate) { return 0.f; }
 	float TotalMass = 0.f;
 	TArray<AActor*> OverlappingActors;
 	// iterate through overlapping actors and add mass
-	PressurePlate->GetOverlappingActors(OUT OverlappingActors);
 	for (const auto& Actor : OverlappingActors)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Found this overlapping actor: %s"), *(Actor->GetName()));

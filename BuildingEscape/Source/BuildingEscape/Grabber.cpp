@@ -50,6 +50,7 @@ void UGrabber::FindPhysicsHandleComponent()
 // try and reach any actors with physics body collision channel set
 void UGrabber::Grab()
 {
+	if (!PhysicsHandle) { return; }
 	auto HitResult = GetFirstBody();
 	auto ComponentToGrab = HitResult.GetComponent();
 	auto ActorHit = HitResult.GetActor();
@@ -66,6 +67,7 @@ void UGrabber::Grab()
 
 void UGrabber::Release()
 {
+	if (!PhysicsHandle) { return; }
 	PhysicsHandle->ReleaseComponent();
 };
 
@@ -73,6 +75,8 @@ void UGrabber::Release()
 void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	if (!PhysicsHandle) { return; }
 	if (PhysicsHandle->GrabbedComponent)
 	{
 		MoveGrabbedObjectWithPlayer();
@@ -81,6 +85,7 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 
 void UGrabber::MoveGrabbedObjectWithPlayer()
 {
+	if (!PhysicsHandle) { return; }
 	Owner->GetPlayerViewPoint(
 		OUT PlayerViewPointLocation,
 		OUT PlayerViewPointRotation
