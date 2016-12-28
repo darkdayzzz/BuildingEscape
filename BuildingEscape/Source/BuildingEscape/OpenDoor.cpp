@@ -20,10 +20,10 @@ UOpenDoor::UOpenDoor()
 void UOpenDoor::BeginPlay()
 {
 	Super::BeginPlay();
-	CloseAngle = GetOwner()->GetTransform().GetRotation().Euler().Z;
 	if (!PressurePlate) {
-		UE_LOG(LogTemp, Warning, TEXT("No Pressure Plate value found. Check object %s has Pressure Plate set."), *(GetOwner()->GetName()));
+		UE_LOG(LogTemp, Error, TEXT("No Pressure Plate value found. Check object %s has Pressure Plate set."), *(GetOwner()->GetName()));
 	};
+	CloseAngle = GetOwner()->GetTransform().GetRotation().Euler().Z;
 }
 
 
@@ -67,6 +67,7 @@ float UOpenDoor::GetMassOfActors()
 	if (!PressurePlate) { return 0.f; }
 	float TotalMass = 0.f;
 	TArray<AActor*> OverlappingActors;
+	PressurePlate->GetOverlappingActors(OUT OverlappingActors);
 	// iterate through overlapping actors and add mass
 	for (const auto& Actor : OverlappingActors)
 	{
