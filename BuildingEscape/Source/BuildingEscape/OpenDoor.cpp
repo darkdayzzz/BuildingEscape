@@ -23,22 +23,7 @@ void UOpenDoor::BeginPlay()
 	if (!PressurePlate) {
 		UE_LOG(LogTemp, Error, TEXT("No Pressure Plate value found. Check object %s has Pressure Plate set."), *(GetOwner()->GetName()));
 	};
-	CloseAngle = GetOwner()->GetTransform().GetRotation().Euler().Z;
 }
-
-
-void UOpenDoor::OpenDoor()
-{
-	OnOpenRequest.Broadcast();
-	//GetOwner()->SetActorRotation(FRotator(0.0f, CloseAngle + OpenAngleOffset, 0.0f));
-	DoorOpened = true;
-}
-
-void UOpenDoor::CloseDoor()
-{
-	GetOwner()->SetActorRotation(FRotator(0.0f, CloseAngle, 0.0f));
-}
-
 
 // Called every frame
 void UOpenDoor::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
@@ -47,19 +32,13 @@ void UOpenDoor::TickComponent( float DeltaTime, ELevelTick TickType, FActorCompo
 
 	// If total mass of actors on trigger is over x kg then OpenDoor()
 	if (!PressurePlate) { return; }
-	if (GetMassOfActors()>50.0f)
+	if (GetMassOfActors() > TriggerMass)
 	{
-		OpenDoor();
+		OnOpen.Broadcast();
 	}
 	else
 	{
-		if (DoorOpened) {
-			TimeTilDoorCloseTriggered = GetWorld()->GetTimeSeconds();
-			DoorOpened = false;
-		};
-		if (GetWorld()->GetTimeSeconds() - TimeTilDoorCloseTriggered > TimeTilDoorClosed) {
-			CloseDoor();
-		};
+		OnClose.Broadcast();
 	};
 }
 
