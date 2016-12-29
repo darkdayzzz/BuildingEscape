@@ -36,7 +36,8 @@ private:
 
 	void UGrabber::FindPhysicsHandleComponent();
 	void UGrabber::SetupInputComponent();
-	const FHitResult UGrabber::GetFirstBody();
+	const FHitResult UGrabber::GetFirstPhysicsBody();
+	const FHitResult UGrabber::GetFirstDynamicBody();
 	void UGrabber::MoveGrabbedObjectWithPlayer();
 	FVector UGrabber::GetReachLineStart();
 	FVector UGrabber::GetReachLineEnd();

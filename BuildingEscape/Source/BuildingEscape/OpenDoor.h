@@ -22,6 +22,9 @@ public:
 	// Called every frame
 	virtual void TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction ) override;
 
+	void OpenDoor();
+	void CloseDoor();
+
 	UPROPERTY(BluePrintAssignable)
 		FDoorEvent OnOpen;
 
@@ -34,9 +37,16 @@ public:
 	UPROPERTY(EditAnywhere)
 		float TriggerMass = 50.0f;
 
+	UPROPERTY(EditAnywhere)
+		bool DoorOpen = false;
+
+	UPROPERTY(EditAnywhere)
+		bool DoorLocked = true;
+
+	bool ManualOpen = false;
 private:
 	UPROPERTY(EditAnywhere)
 		ATriggerVolume* PressurePlate = nullptr; // trigger volume to open door
-
+	
 	float UOpenDoor::GetMassOfActors();
 };

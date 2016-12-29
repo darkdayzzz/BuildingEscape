@@ -2,6 +2,8 @@
 
 #include "BuildingEscape.h"
 #include "Grabber.h"
+#include "InteractionType.h"
+#include "OpenDoor.h"
 
 #define OUT
 
@@ -22,6 +24,7 @@ void UGrabber::BeginPlay()
 	Owner = GetWorld()->GetFirstPlayerController();	
 	FindPhysicsHandleComponent();
 	SetupInputComponent();
+
 }
 
 /// look for attached input component
@@ -51,7 +54,7 @@ void UGrabber::FindPhysicsHandleComponent()
 void UGrabber::Grab()
 {
 	if (!PhysicsHandle) { return; }
-	auto HitResult = GetFirstBody();
+	auto HitResult = GetFirstPhysicsBody();
 	auto ComponentToGrab = HitResult.GetComponent();
 	auto ActorHit = HitResult.GetActor();
 	/// if we hit something then attach a physics handle
@@ -62,6 +65,29 @@ void UGrabber::Grab()
 			ComponentToGrab->GetOwner()->GetActorLocation(),
 			true
 		);
+	} else {
+		FHitResult HitResult = GetFirstDynamicBody();
+		auto ActorHit = HitResult.GetActor();
+		if (ActorHit) {
+			UOpenDoor* OpenDoorComponent = ActorHit->FindComponentByClass<UOpenDoor>();
+			if (OpenDoorComponent) {				
+				UE_LOG(LogTemp, Warning, TEXT("Wiggling handle %s"), *(ActorHit->GetName()));
+				if (OpenDoorComponent->DoorLocked) {
+					UE_LOG(LogTemp, Warning, TEXT("%s locked!"), *(ActorHit->GetName()));
+				}
+				else {
+					OpenDoorComponent->ManualOpen = true;
+					if (OpenDoorComponent->DoorOpen) {
+						UE_LOG(LogTemp, Warning, TEXT("Closing %s"), *(ActorHit->GetName()));
+						OpenDoorComponent->CloseDoor();
+					}
+					else {
+						UE_LOG(LogTemp, Warning, TEXT("Opening %s"), *(ActorHit->GetName()));
+						OpenDoorComponent->OpenDoor();
+					}
+				}
+			}
+		}
 	}
 };
 
@@ -110,7 +136,7 @@ void UGrabber::Debug_DrawDebugLine()
 }
 
 // get first physics body within reach
-const FHitResult UGrabber::GetFirstBody()
+const FHitResult UGrabber::GetFirstPhysicsBody()
 {
 	/// get player location and direction and extrapolate reach direction	
 	FCollisionQueryParams TraceParameters(FName(TEXT("")), false, GetOwner());
@@ -124,6 +150,27 @@ const FHitResult UGrabber::GetFirstBody()
 		TraceParameters
 	)) {
 		AActor* ObjectHit = LineTraceHit.GetActor();
+		UE_LOG(LogTemp, Warning, TEXT("Grabbing %s"), *(ObjectHit->GetName()));
+	}
+	return LineTraceHit;
+}
+
+// get first dynamic body within reach
+const FHitResult UGrabber::GetFirstDynamicBody()
+{
+	/// get player location and direction and extrapolate reach direction	
+	FCollisionQueryParams TraceParameters(FName(TEXT("")), false, GetOwner());
+	FHitResult LineTraceHit;
+	/// Check LINE-TRACE for hit results
+	if (GetWorld()->LineTraceSingleByObjectType(
+		OUT LineTraceHit,
+		GetReachLineStart(),
+		GetReachLineEnd(),
+		FCollisionObjectQueryParams(ECollisionChannel::ECC_WorldDynamic),
+		TraceParameters
+	)) {
+		AActor* ObjectHit = LineTraceHit.GetActor();
+		UE_LOG(LogTemp, Warning, TEXT("Interacting with %s"), *(ObjectHit->GetName()));
 	}
 	return LineTraceHit;
 }

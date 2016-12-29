@@ -25,6 +25,18 @@ void UOpenDoor::BeginPlay()
 	};
 }
 
+void UOpenDoor::OpenDoor()
+{
+	OnOpen.Broadcast();
+	DoorOpen = true;
+}
+
+void UOpenDoor::CloseDoor()
+{
+	OnClose.Broadcast();
+	DoorOpen = false;
+}
+
 // Called every frame
 void UOpenDoor::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
 {
@@ -34,11 +46,12 @@ void UOpenDoor::TickComponent( float DeltaTime, ELevelTick TickType, FActorCompo
 	if (!PressurePlate) { return; }
 	if (GetMassOfActors() > TriggerMass)
 	{
-		OnOpen.Broadcast();
+		ManualOpen = false;
+		OpenDoor();
 	}
-	else
+	else if (!ManualOpen)
 	{
-		OnClose.Broadcast();
+		CloseDoor();
 	};
 }
 
